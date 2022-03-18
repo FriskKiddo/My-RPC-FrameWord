@@ -29,7 +29,6 @@ import java.util.concurrent.TimeUnit;
 public class ChannelProvider {
 
     private static final Logger logger = LoggerFactory.getLogger(ChannelProvider.class);
-
     private static EventLoopGroup workerGroup;
     private static Bootstrap bootstrap = initializeBootstrap();
 

@@ -9,8 +9,7 @@ import top.ccyy.transport.client.RpcClientProxy;
 public class Client {
 
     public static void main(String[] args) {
-        NettyClient nettyClient = new NettyClient();
-        RpcClientProxy proxyClient = new RpcClientProxy(nettyClient);
+        RpcClientProxy proxyClient = new RpcClientProxy(new NettyClient());
         HelloService helloService = proxyClient.getProxy(HelloService.class);
         String res = helloService.hello(new HelloObject(11652, "你好"));
         System.out.println(res);

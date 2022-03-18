@@ -5,6 +5,7 @@ import org.slf4j.LoggerFactory;
 import top.ccyy.entity.RpcRequest;
 import top.ccyy.entity.RpcResponse;
 import top.ccyy.util.RpcMessageChecker;
+
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
@@ -24,10 +25,16 @@ public class RpcClientProxy implements InvocationHandler {
         this.rpcClient = rpcClient;
     }
 
+    @SuppressWarnings("unchecked")
     public <T> T getProxy(Class<T> clazz) {
-        return (T) Proxy.newProxyInstance(clazz.getClassLoader(), clazz.getInterfaces(), this);
+        return (T) Proxy.newProxyInstance(clazz.getClassLoader(), new Class<?>[]{clazz}, this);
     }
 
+    public Object getProxy(Object target) {
+        return Proxy.newProxyInstance(target.getClass().getClassLoader(), target.getClass().getInterfaces(), this);
+    }
+
+    @SuppressWarnings("unchecked")
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) {
         logger.info("调用方法：{}#{}", method.getDeclaringClass().getName(), method.getName());
@@ -43,6 +50,7 @@ public class RpcClientProxy implements InvocationHandler {
             logger.error("方法调用请求发送失败", e);
             return null;
         }
+
         RpcMessageChecker.check(rpcRequest, rpcResponse);
         return rpcResponse.getData();
     }

@@ -8,11 +8,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import top.ccyy.enumeration.RpcError;
 import top.ccyy.exception.RpcException;
+
 import java.net.InetSocketAddress;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 public class NacosUtil {
 
@@ -34,7 +32,7 @@ public class NacosUtil {
 
     public static void registry(String serviceName, InetSocketAddress address) {
         try {
-            namingService.registerInstance(serviceName, address.getHostName(),address.getPort());
+            namingService.registerInstance(serviceName, address.getHostName(), address.getPort());
             NacosUtil.address = address;
             serviceNames.add(serviceName);
         } catch (NacosException e) {
@@ -57,8 +55,15 @@ public class NacosUtil {
         return null;
     }
 
-    public static List<Instance> getAllInstances(String serviceName) throws NacosException {
-        return namingService.getAllInstances(serviceName);
+    public static List<Instance> getAllInstances(String serviceName) {
+        List<Instance> instanceList = new ArrayList<>();
+        try {
+            instanceList = namingService.getAllInstances(serviceName);
+        } catch (NacosException e) {
+            logger.error(e.toString());
+            throw new RpcException(RpcError.CANNOT_CONNECT_REGISTRY);
+        }
+        return instanceList;
     }
 
     public static void deregister() {

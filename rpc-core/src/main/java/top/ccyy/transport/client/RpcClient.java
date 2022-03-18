@@ -8,7 +8,7 @@ import top.ccyy.serializer.CommonSerializer;
  */
 public interface RpcClient {
 
-    int DEFAULT_SERIALIZER = CommonSerializer.DEFAULT_SERIALIZER;
+    Integer DEFAULT_SERIALIZER = CommonSerializer.DEFAULT_SERIALIZER;
 
     /**
      * send request

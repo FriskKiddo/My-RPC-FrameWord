@@ -23,35 +23,18 @@ public class ConsistentHashLoadBalance implements LoadBalancer {
 
     private final ConcurrentHashMap<String, ConsistentHashSelector> selectors = new ConcurrentHashMap<>();
 
-//    protected Instance doSelect(List<String> serviceAddresses, String rpcServiceName) {
-//        int identityHashCode = System.identityHashCode(serviceAddresses);
-//        ConsistentHashSelector selector = selectors.get(rpcServiceName);
-//        // check for updates
-//        if (selector == null || selector.identityHashCode != identityHashCode) {
-//            selectors.put(rpcServiceName, new ConsistentHashSelector(serviceAddresses, 160, identityHashCode));
-//            selector = selectors.get(rpcServiceName);
-//        }
-//
-//        return selector.select(rpcServiceName);
-//    }
-
-
     @Override
     public Instance select(String serviceName) {
         List<Instance> instanceList;
-        try {
-            instanceList = NacosUtil.getAllInstances(serviceName);
-        } catch (NacosException e) {
-            throw new RpcException(RpcError.SERVICE_NOT_FOUND);
-        }
+        instanceList = NacosUtil.getAllInstances(serviceName);
         int identityHashCode = System.identityHashCode(instanceList);
         ConsistentHashSelector selector = selectors.get(serviceName);
         if (selector == null || selector.identityHashCode != identityHashCode) {
-            selectors.put(serviceName, new ConsistentHashSelector(instanceList, 160, identityHashCode));
+            selectors.put(serviceName, new ConsistentHashSelector(instanceList, Integer.MAX_VALUE, identityHashCode));
             selector = selectors.get(serviceName);
         }
 
-        return selector.select(serviceName);
+        return selector.doSelect(serviceName);
     }
 
     static class ConsistentHashSelector {
@@ -63,15 +46,16 @@ public class ConsistentHashLoadBalance implements LoadBalancer {
 
         /**
          * @param invokers         节点列表
-         * @param replicaNumber    一致性数
-         * @param identityHashCode
+         * @param replicaNumber    哈希环大小
+         * @param identityHashCode 标识码
          */
         ConsistentHashSelector(List<Instance> invokers, int replicaNumber, int identityHashCode) {
             this.virtualInvokers = new TreeMap<>();
             this.identityHashCode = identityHashCode;
+            int virtualNode = 4;  //虚拟节点数目
 
             for (Instance invoker : invokers) {
-                for (int i = 0; i < replicaNumber / 4; i++) {
+                for (int i = 0; i < replicaNumber / virtualNode; i++) {
                     byte[] digest = md5(invoker.getClusterName() + i);
                     for (int h = 0; h < 4; h++) {
                         long m = hash(digest, h);
@@ -99,7 +83,7 @@ public class ConsistentHashLoadBalance implements LoadBalancer {
             return ((long) (digest[3 + idx * 4] & 255) << 24 | (long) (digest[2 + idx * 4] & 255) << 16 | (long) (digest[1 + idx * 4] & 255) << 8 | (long) (digest[idx * 4] & 255)) & 4294967295L;
         }
 
-        public Instance select(String rpcServiceName) {
+        public Instance doSelect(String rpcServiceName) {
             byte[] digest = md5(rpcServiceName);
             return selectForKey(hash(digest, 0));
         }
@@ -111,13 +95,6 @@ public class ConsistentHashLoadBalance implements LoadBalancer {
                 entry = virtualInvokers.firstEntry();
             }
             return entry.getValue();
-
-//            Map.Entry<Long, String> entry = virtualInvokers.tailMap(hashCode, true).firstEntry();
-//            if (entry == null) {
-//                //尾部映射区间返回头部节点
-//                entry = virtualInvokers.firstEntry();
-//            }
-//            return entry.getValue();
         }
     }
 }

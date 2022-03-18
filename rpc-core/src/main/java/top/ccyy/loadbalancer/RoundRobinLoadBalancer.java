@@ -5,6 +5,7 @@ import com.alibaba.nacos.api.naming.pojo.Instance;
 import top.ccyy.enumeration.RpcError;
 import top.ccyy.exception.RpcException;
 import top.ccyy.util.NacosUtil;
+
 import java.util.List;
 
 public class RoundRobinLoadBalancer implements LoadBalancer {
@@ -23,11 +24,7 @@ public class RoundRobinLoadBalancer implements LoadBalancer {
 
     @Override
     public Instance select(String serviceName) {
-        try {
-            instanceList = NacosUtil.getAllInstances(serviceName);
-        } catch (NacosException e) {
-            throw new RpcException(RpcError.SERVICE_NOT_FOUND);
-        }
+        instanceList = NacosUtil.getAllInstances(serviceName);
         if (instanceList.isEmpty()) {
             throw new RpcException(RpcError.SERVICE_NOT_FOUND);
         }

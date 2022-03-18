@@ -6,7 +6,7 @@ import top.ccyy.enumeration.ResponseCode;
 import java.io.Serializable;
 
 @Data
-public class RpcResponse<T> implements Serializable {
+public class RpcResponse implements Serializable {
 
     /**
      * 响应对应的请求号
@@ -23,10 +23,10 @@ public class RpcResponse<T> implements Serializable {
     /**
      * 响应数据
      */
-    private T data;
+    private Object data;
 
-    public static <T> RpcResponse success(T data, String requestId){
-        RpcResponse<T> rpcResponse = new RpcResponse<T>();
+    public static RpcResponse success(Object data, String requestId) {
+        RpcResponse rpcResponse = new RpcResponse();
         rpcResponse.setRequestId(requestId);
         rpcResponse.setStatusCode(ResponseCode.SUCCESS.getCode());
         rpcResponse.setMessage(ResponseCode.SUCCESS.getMessage());
@@ -34,8 +34,8 @@ public class RpcResponse<T> implements Serializable {
         return rpcResponse;
     }
 
-    public static <T> RpcResponse fail() {
-        RpcResponse<T> rpcResponse = new RpcResponse<T>();
+    public static RpcResponse fail() {
+        RpcResponse rpcResponse = new RpcResponse();
         rpcResponse.setStatusCode(ResponseCode.SUCCESS.getCode());
         rpcResponse.setMessage(ResponseCode.SUCCESS.getMessage());
         rpcResponse.setData(null);

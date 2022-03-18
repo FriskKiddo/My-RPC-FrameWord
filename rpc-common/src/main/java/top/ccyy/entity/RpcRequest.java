@@ -19,6 +19,7 @@ public class RpcRequest implements Serializable {
      * 请求号
      */
     private String requestId;
+
     /**
      * 请求接口名
      */
@@ -38,6 +39,7 @@ public class RpcRequest implements Serializable {
      * 请求参数类型
      */
     private Class<?>[] paramTypes;
+
     /**
      * 是否是心跳包
      */

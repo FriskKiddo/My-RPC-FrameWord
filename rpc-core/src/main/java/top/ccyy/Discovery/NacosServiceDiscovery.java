@@ -1,30 +1,25 @@
-package top.ccyy.register;
+package top.ccyy.Discovery;
 
-import com.alibaba.nacos.api.exception.NacosException;
 import com.alibaba.nacos.api.naming.pojo.Instance;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import top.ccyy.enumeration.RpcError;
-import top.ccyy.exception.RpcException;
 import top.ccyy.loadbalancer.LoadBalancer;
 import top.ccyy.loadbalancer.RoundRobinLoadBalancer;
-import top.ccyy.util.NacosUtil;
 
 import java.net.InetSocketAddress;
-import java.util.List;
 
 public class NacosServiceDiscovery implements ServiceDiscovery {
 
     private static final Logger logger = LoggerFactory.getLogger(NacosServiceDiscovery.class);
-
+    private static final LoadBalancer DEFAULT_LOADBALANCER = new RoundRobinLoadBalancer();
     private final LoadBalancer loadBalancer;
 
+    public NacosServiceDiscovery() {
+        this.loadBalancer = DEFAULT_LOADBALANCER;
+    }
+
     public NacosServiceDiscovery(LoadBalancer loadBalancer) {
-        if (loadBalancer == null) {
-            this.loadBalancer = new RoundRobinLoadBalancer();
-        } else {
-            this.loadBalancer = loadBalancer;
-        }
+        this.loadBalancer = loadBalancer;
     }
 
     @Override

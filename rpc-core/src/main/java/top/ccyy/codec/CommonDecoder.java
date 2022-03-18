@@ -20,7 +20,7 @@ import java.util.List;
 public class CommonDecoder extends ReplayingDecoder {
 
     private static final Logger logger = LoggerFactory.getLogger(CommonDecoder.class);
-    private static final int MAGIC_NUMBER = 0xCAFEBABE;
+    private static final int MAGIC_NUMBER = 0xCBCBCBCB;
 
     @Override
     protected void decode(ChannelHandlerContext ctx, ByteBuf in, List<Object> out) throws Exception {
